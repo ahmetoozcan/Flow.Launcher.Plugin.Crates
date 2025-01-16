@@ -30,8 +30,8 @@ jobs:
 
       - name: Build
         run: |
-          dotnet publish -c Release -r win-x64 --no-self-contained Flow.Launcher.Plugin.Crates.csproj
-          7z a -tzip "Flow.Launcher.Plugin.Crates.zip" "./bin/Release/win-x64/publish/*"
+          dotnet publish -c Release -r win-x64 --no-self-contained 'Flow.Launcher.Plugin.Crates/Flow.Launcher.Plugin.Crates.csproj'
+          7z a -tzip "Flow.Launcher.Plugin.Crates.zip" "./Flow.Launcher.Plugin.Crates/bin/Release/win-x64/publish/*"
 
       - name: Publish
         uses: softprops/action-gh-release@v1

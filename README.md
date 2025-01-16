@@ -39,8 +39,9 @@ On the way...
 
 ## Roadmap
 
-- [ ] Setting for changing the number of crates found per search
+- [ ] Setting for changing the number of crates found per search.
 - [ ] Adding a crate to a specific project (I don't want to use the path to do this. I'll look into how I can get Rust project names and their paths. If you know, let me know in the issues.)
+- [ ] You can request features in the issues.
 
 ## License 
 

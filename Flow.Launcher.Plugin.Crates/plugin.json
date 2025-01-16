@@ -1,0 +1,12 @@
+{
+    "ID": "DBBBC4D4C38147A7B0570A473CFA9521",
+    "ActionKeyword": "cr",
+    "Name": "Crates",
+    "Description": "Search and explore Rust crates directly from Flow Launcher",
+    "Author": "ahmetoozcan",
+    "Version": "1.0.0",
+    "Language": "csharp",
+    "Website": "https://github.com/ahmetoozcan/Flow.Launcher.Plugin.Crates",
+    "IcoPath": "Images\\icon.png",
+    "ExecuteFileName": "Flow.Launcher.Plugin.Crates.dll"
+}

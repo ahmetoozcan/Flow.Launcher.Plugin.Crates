@@ -2,29 +2,35 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 using Flow.Launcher.Plugin;
 
 namespace Flow.Launcher.Plugin.Crates
 {
-    public class Crates : IPlugin, IContextMenu
+    public class Crates : IAsyncPlugin, IContextMenu
     {
         private PluginInitContext _context;
 
-        private readonly string crateBaseUrl = "https://crates.io/crates";
+        // From https://crates.io/data-access 
+        // "A maximum of 1 request per second."
+        private static DateTime _lastRequestTime = DateTime.MinValue;
+
+        private readonly string _crateBaseUrl = "https://crates.io/crates";
 
         // TODO: Setting to change the number of query results
-        private readonly string queryUrl = "https://crates.io/api/v1/crates?page=1&per_page=20&q=";
+        private readonly string _queryUrl = "https://crates.io/api/v1/crates?page=1&per_page=20&q=";
 
-        public void Init(PluginInitContext context)
+        public async Task InitAsync(PluginInitContext context)
         {
             _context = context;
         }
 
-        public List<Result> Query(Query query)
+        public async Task<List<Result>> QueryAsync(Query query, CancellationToken token)
         {
             List<Result> results = new List<Result>();
             string[] args = query.RawQuery.Split(' ');
-            string url = queryUrl;
+            string url = _queryUrl;
 
             // No query args no results 
             if (args.Length < 2){
@@ -39,12 +45,23 @@ namespace Flow.Launcher.Plugin.Crates
                     url += "%20";
             }
 
+            // Calculate the time difference between the current request and the last request
+            TimeSpan timeSinceLastRequest = DateTime.Now - _lastRequestTime;
+            if (timeSinceLastRequest.TotalMilliseconds < 1000)
+            {
+                await Task.Delay(1000 - (int)timeSinceLastRequest.TotalMilliseconds, token);
+            }
+
             using (var client = new System.Net.Http.HttpClient())
             {
-                // Add User-Agent header
+                // From https://crates.io/data-access 
+                // "A user-agent header that identifies your application. We strongly suggest 
+                // providing a way for us to contact you (whether through a repository, 
+                // or an e-mail address, or whatever is appropriate) so that we can 
+                // reach out to work with you should there be issues."
                 client.DefaultRequestHeaders.Add("User-Agent", "Flow.Launcher.Plugin.Crates/1.0 (contact: ahmetozcan21@yahoo.com, github:https://github.com/ahmetoozcan)");
-
-                var response = client.GetAsync(url).Result;
+                
+                var response = client.GetAsync(url, token).Result;
                 if (response.IsSuccessStatusCode)
                 {
                     var jsonString = response.Content.ReadAsStringAsync().Result;
@@ -52,13 +69,24 @@ namespace Flow.Launcher.Plugin.Crates
                     {
                         JsonElement root = doc.RootElement;
                         JsonElement crates = root.GetProperty("crates");
-            
+                        
+                        if (!crates.EnumerateArray().Any())
+                        {
+                            results.Add(new Result
+                            {
+                                Title = "No crates found",
+                                SubTitle = "No crates match your search query.",
+                                IcoPath = IconProvider.Crate
+                            });
+                            return results;
+                        }
+
                         foreach (JsonElement crate in crates.EnumerateArray())
                         {
                             string crateId = crate.GetProperty("id").GetString();
                             string crateName = crate.GetProperty("name").GetString();
                             string crateDescription = crate.GetProperty("description").GetString();
-                            string crateUrl = $"{crateBaseUrl}/{crateId}";
+                            string crateUrl = $"{_crateBaseUrl}/{crateId}";
 
 
                             CrateContextData crateContextData = new CrateContextData
@@ -94,6 +122,9 @@ namespace Flow.Launcher.Plugin.Crates
                     }
                 }
             }
+
+            // Update the last request time
+            _lastRequestTime = DateTime.Now;
 
             return results;
         }

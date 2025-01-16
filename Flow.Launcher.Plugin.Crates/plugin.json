@@ -1,7 +1,7 @@
 {
     "ID": "DBBBC4D4C38147A7B0570A473CFA9521",
     "ActionKeyword": "cr",
-    "Name": "Crates",
+    "Name": "Crates.io",
     "Description": "Search and explore Rust crates directly from Flow Launcher",
     "Author": "ahmetoozcan",
     "Version": "1.0.0",

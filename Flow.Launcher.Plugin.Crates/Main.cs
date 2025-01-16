@@ -28,6 +28,11 @@ namespace Flow.Launcher.Plugin.Crates
 
         public async Task<List<Result>> QueryAsync(Query query, CancellationToken token)
         {
+            if (token.IsCancellationRequested)
+            {
+                return null;
+            }
+
             List<Result> results = new List<Result>();
             string[] args = query.RawQuery.Split(' ');
             string url = _queryUrl;

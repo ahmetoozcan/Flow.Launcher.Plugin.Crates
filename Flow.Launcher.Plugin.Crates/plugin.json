@@ -4,7 +4,7 @@
     "Name": "Crates.io",
     "Description": "Search and explore Rust crates directly from Flow Launcher",
     "Author": "ahmetoozcan",
-    "Version": "1.0.0",
+    "Version": "1.0.1",
     "Language": "csharp",
     "Website": "https://github.com/ahmetoozcan/Flow.Launcher.Plugin.Crates",
     "IcoPath": "Images\\icon.png",
